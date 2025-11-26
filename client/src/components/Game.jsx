@@ -1,4 +1,3 @@
-```javascript
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
