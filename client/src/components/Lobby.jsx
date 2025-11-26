@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Lobby = () => {
-    const { roomCode, players, isHost, joinRoom, startGame, error, prompt, generatePrompt } = useGame();
+    const { roomCode, players, isHost, joinRoom, startGame, error, prompt, generatePrompt, leaveRoom } = useGame();
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [showRules, setShowRules] = useState(false);
@@ -26,7 +26,12 @@ const Lobby = () => {
             <div style={styles.container}>
                 <div style={styles.card}>
                     <h2 style={styles.title}>Room Code</h2>
-                    <div style={styles.codeDisplay}>{roomCode}</div>
+                    <div style={styles.header}>
+                        <div style={styles.codeDisplay}>{roomCode}</div>
+                        <button onClick={leaveRoom} style={styles.leaveButton}>
+                            ❌ Leave
+                        </button>
+                    </div>
 
                     {/* AI Prompt Section */}
                     <div style={styles.aiSection}>
@@ -195,6 +200,13 @@ const styles = {
         color: 'var(--color-text)',
         margin: '0 0 10px 0',
     },
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        width: '100%',
+        justifyContent: 'center',
+    },
     codeDisplay: {
         fontSize: '3rem',
         fontWeight: 'bold',
@@ -203,6 +215,15 @@ const styles = {
         background: '#FFF5F7',
         padding: '10px 30px',
         borderRadius: 'var(--radius-md)',
+    },
+    leaveButton: {
+        background: 'none',
+        border: 'none',
+        fontSize: '1rem',
+        cursor: 'pointer',
+        padding: '10px',
+        color: '#E53E3E',
+        fontWeight: 'bold',
     },
     input: {
         width: '100%',
