@@ -128,7 +128,8 @@ io.on('connection', (socket) => {
         io.to(currentRoomCode).emit('room_update', {
             roomCode: currentRoomCode,
             players: room.players,
-            state: room.state
+            state: room.state,
+            prompt: room.prompt
         });
     });
 
@@ -163,7 +164,8 @@ io.on('connection', (socket) => {
         io.to(roomCode).emit('room_update', {
             roomCode,
             players: room.players,
-            state: room.state
+            state: room.state,
+            prompt: room.prompt
         });
     });
 
