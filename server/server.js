@@ -199,27 +199,40 @@ io.on('connection', (socket) => {
         if (!room || !model) return;
 
         try {
-            let promptText;
-            if (mode === 'NSFW') {
-                promptText = `Generate a single, short, funny, raunchy, adult-only topic for a group game where players have to rank items from 1-100.
-                Examples:
-                "How kinky is this?"
-                "How likely are you to sleep with them?"
-                "How embarrassing is this sexual encounter?"
-                
-                Output ONLY the topic text. No quotes.`;
-            } else {
-                // SAFE mode (default)
-                promptText = `Generate a single, short, fun, family-friendly debate-sparking topic for a group game where players have to rank items from 1-100.
-                Examples:
-                "How dangerous is this animal?"
-                "How useful is this superpower?"
-                "How delicious is this food?"
-                
-                Output ONLY the topic text. No quotes.`;
-            }
+            const promptTemplate = `Role: You are a game content generator for the cooperative party game "Ito." In this game, players are given a category that involves a spectrum (e.g., "Worst to Best" or "Least to Most"), and they must place a secret number they hold onto that spectrum.
 
-            const result = await model.generateContent(promptText);
+Objective: Generate a single game category based on the user's specified mode.
+
+Context & Examples: The game operates in two distinct modes. You must strictly adhere to the tone of the selected mode using the training data below:
+
+Mode A: SAFE Tone: Whimsical, family-friendly, abstract, funny, or everyday scenarios.
+"Superpowers from least to most powerful"
+"Worst to best places to start dancing uncontrollably"
+"Scenarios from least to most annoying"
+"Worst to best things to have the ability to conjure from thin air"
+"Animals and fantasy creatures from least to most cool to have as a pet"
+"Worst to best things to put in a smoothie"
+"Things you would do if you were a bird from least to most interesting"
+
+Mode B: NSFW Tone: Adult humor, dark/morbid curiosity, sexual topics, taboo, gross-out humor, or illegal activities.
+"Worst to best ways to commit a murder and try to get away with it"
+"Worst to best things to get tattooed"
+"Ways to make a child cry from least to most cruel"
+"Places to hide a body from worst to best"
+"Worst to best excuses for cheating on your significant other"
+"Worst to best things to do in a zombie apocalypse"
+"Things that least to most disgust you"
+"Worst to best things to nickname your genitals"
+
+Instructions:
+Analyze the Input: The user will provide a mode (SAFE or NSFW).
+Generate a Category: Create a new category that fits the format "Subject X from [Metric A] to [Metric B]" or "Worst to Best [Subject X]."
+Ensure Ambiguity: The category must be subjective enough that players can debate where a number falls on the scale.
+Output Format: Output only the category text. Do not provide preamble or explanations.
+
+User Input: ${mode}`;
+
+            const result = await model.generateContent(promptTemplate);
             const response = await result.response;
             const text = response.text().trim();
 
