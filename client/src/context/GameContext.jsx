@@ -99,6 +99,20 @@ export const GameProvider = ({ children }) => {
         socket.emit('generate_prompt', { roomCode, mode });
     };
 
+    const leaveRoom = () => {
+        if (!socket) return;
+        socket.emit('leave_room', { roomCode, sessionId });
+        setRoomCode('');
+        setPlayers([]);
+        setGameState('LOBBY');
+        setMyNumber(null);
+        setIsHost(false);
+        setPrompt(null);
+        localStorage.removeItem('sessionId'); // Clear session on explicit leave
+        setSessionId('');
+        navigate('/');
+    };
+
     const getPlayerColor = (name) => {
         // Find player by name (or we could pass ID, but name is what we have in Game.jsx currently)
         // Ideally Game.jsx should use the player object, but for now let's find it.
@@ -120,6 +134,7 @@ export const GameProvider = ({ children }) => {
             startGame,
             resetGame,
             generatePrompt,
+            leaveRoom,
             getPlayerColor
         }}>
             {children}
