@@ -45,7 +45,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 let model;
 if (process.env.GEMINI_API_KEY) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 } else {
     console.warn("GEMINI_API_KEY is missing. AI features will be disabled.");
 }
