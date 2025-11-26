@@ -50,7 +50,7 @@ const Lobby = () => {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h1 style={styles.logo}>Digital Ito</h1>
+                <h1 style={styles.logo}>digito</h1>
 
                 {error && <div style={styles.error}>{error}</div>}
 
