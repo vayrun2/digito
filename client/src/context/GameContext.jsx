@@ -22,6 +22,7 @@ export const GameProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     const [prompt, setPrompt] = useState(null);
+    const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
 
     useEffect(() => {
         if (!socket) return;
@@ -29,6 +30,7 @@ export const GameProvider = ({ children }) => {
         socket.on('connect_error', (err) => {
             console.error('Socket connection error:', err);
             setError('Connection to server failed. Is the server running?');
+            setIsGeneratingPrompt(false);
         });
 
         socket.on('session_set', (data) => {
@@ -67,6 +69,14 @@ export const GameProvider = ({ children }) => {
         socket.on('new_prompt', (data) => {
             console.log('New Prompt:', data);
             setPrompt(data.prompt);
+            setIsGeneratingPrompt(false);
+        });
+
+        // Listen for general errors to stop loading
+        socket.on('error', (msg) => {
+            console.error('Socket Error:', msg);
+            setError(msg);
+            setIsGeneratingPrompt(false);
         });
 
         return () => {
@@ -75,6 +85,7 @@ export const GameProvider = ({ children }) => {
             socket.off('room_update');
             socket.off('game_start');
             socket.off('new_prompt');
+            socket.off('error');
         };
     }, [socket, navigate, sessionId]);
 
@@ -96,6 +107,8 @@ export const GameProvider = ({ children }) => {
 
     const generatePrompt = (mode) => {
         if (!socket) return;
+        setIsGeneratingPrompt(true);
+        setPrompt(null); // Clear old prompt while generating
         socket.emit('generate_prompt', { roomCode, mode });
     };
 
@@ -130,6 +143,7 @@ export const GameProvider = ({ children }) => {
             isHost,
             error,
             prompt,
+            isGeneratingPrompt,
             joinRoom,
             startGame,
             resetGame,
