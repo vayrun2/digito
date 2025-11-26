@@ -21,6 +21,8 @@ export const GameProvider = ({ children }) => {
     const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || '');
     const [error, setError] = useState(null);
 
+    const [prompt, setPrompt] = useState(null);
+
     useEffect(() => {
         if (!socket) return;
 
@@ -40,6 +42,7 @@ export const GameProvider = ({ children }) => {
             setRoomCode(data.roomCode);
             setPlayers(data.players);
             setGameState(data.state);
+            if (data.prompt !== undefined) setPrompt(data.prompt);
 
             // Check if I am host
             const me = data.players.find(p => p.sessionId === (data.sessionId || sessionId));
@@ -61,11 +64,17 @@ export const GameProvider = ({ children }) => {
             navigate('/game');
         });
 
+        socket.on('new_prompt', (data) => {
+            console.log('New Prompt:', data);
+            setPrompt(data.prompt);
+        });
+
         return () => {
             socket.off('connect_error');
             socket.off('session_set');
             socket.off('room_update');
             socket.off('game_start');
+            socket.off('new_prompt');
         };
     }, [socket, navigate, sessionId]);
 
@@ -85,6 +94,11 @@ export const GameProvider = ({ children }) => {
         socket.emit('reset_game', { roomCode });
     };
 
+    const generatePrompt = (spiciness) => {
+        if (!socket) return;
+        socket.emit('generate_prompt', { roomCode, spiciness });
+    };
+
     const getPlayerColor = (name) => {
         // Find player by name (or we could pass ID, but name is what we have in Game.jsx currently)
         // Ideally Game.jsx should use the player object, but for now let's find it.
@@ -101,9 +115,11 @@ export const GameProvider = ({ children }) => {
             playerName,
             isHost,
             error,
+            prompt,
             joinRoom,
             startGame,
             resetGame,
+            generatePrompt,
             getPlayerColor
         }}>
             {children}

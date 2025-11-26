@@ -38,6 +38,18 @@ const COLORS = [
     '#F1C40F', // Sun
 ];
 
+// Gemini AI Setup
+require('dotenv').config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+let model;
+if (process.env.GEMINI_API_KEY) {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+} else {
+    console.warn("GEMINI_API_KEY is missing. AI features will be disabled.");
+}
+
 io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
@@ -163,6 +175,7 @@ io.on('connection', (socket) => {
         }
 
         room.state = 'LOBBY';
+        room.prompt = null; // Clear prompt on reset
 
         // Reset player numbers
         room.players.forEach(player => {
@@ -175,8 +188,41 @@ io.on('connection', (socket) => {
         io.to(roomCode).emit('room_update', {
             roomCode,
             players: room.players,
-            state: room.state
+            state: room.state,
+            prompt: null
         });
+    });
+
+    // Handle AI Prompt Generation
+    socket.on('generate_prompt', async ({ roomCode, spiciness }) => {
+        const room = rooms.get(roomCode);
+        if (!room || !model) return;
+
+        try {
+            const promptText = `Generate a single, short, fun, debate-sparking topic for a group game where players have to rank items from 1-100. 
+            The topic should be suitable for a "Spiciness Level" of ${spiciness} out of 3.
+            Level 1: Wholesome, family friendly.
+            Level 2: Edgy, funny, maybe slightly controversial.
+            Level 3: Raunchy, dark humor, adult only.
+            
+            Examples:
+            "How dangerous is this animal?"
+            "How acceptable is this behavior?"
+            "How much would you pay for this?"
+            
+            Output ONLY the topic text. No quotes.`;
+
+            const result = await model.generateContent(promptText);
+            const response = await result.response;
+            const text = response.text().trim();
+
+            room.prompt = text;
+
+            io.to(roomCode).emit('new_prompt', { prompt: text });
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            socket.emit('error', 'Failed to generate prompt. Try again!');
+        }
     });
 
     socket.on('disconnect', () => {

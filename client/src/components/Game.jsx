@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Game = () => {
-    const { myNumber, playerName, getPlayerColor, isHost, resetGame } = useGame();
+    const { myNumber, playerName, getPlayerColor, isHost, resetGame, prompt, generatePrompt } = useGame();
     const [isRevealed, setIsRevealed] = useState(true); // Default to revealed (Number)
+    const [spiciness, setSpiciness] = useState(1);
 
     const cardColor = getPlayerColor(playerName);
 
@@ -16,6 +17,13 @@ const Game = () => {
             ...styles.container,
             background: isRevealed ? 'var(--color-white)' : cardColor,
         }}>
+
+            {/* Prompt Display */}
+            {prompt && (
+                <div style={styles.promptContainer}>
+                    <span style={styles.promptText}>{prompt}</span>
+                </div>
+            )}
 
             {/* Content Area */}
             <div style={styles.content}>
@@ -37,9 +45,25 @@ const Game = () => {
                 </button>
 
                 {isHost && (
-                    <button onClick={resetGame} style={styles.resetButton}>
-                        New Game
-                    </button>
+                    <div style={styles.hostControls}>
+                        <div style={styles.aiControls}>
+                            <label style={styles.label}>Spiciness: {spiciness} 🌶️</label>
+                            <input
+                                type="range"
+                                min="1"
+                                max="3"
+                                value={spiciness}
+                                onChange={(e) => setSpiciness(e.target.value)}
+                                style={styles.slider}
+                            />
+                            <button onClick={() => generatePrompt(spiciness)} style={styles.aiButton}>
+                                ✨ New Topic
+                            </button>
+                        </div>
+                        <button onClick={resetGame} style={styles.resetButton}>
+                            New Game
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
@@ -120,6 +144,62 @@ const styles = {
         color: 'white',
         background: 'rgba(229, 62, 62, 0.8)', // Red
         borderRadius: 'var(--radius-md)',
+        border: 'none',
+    },
+    promptContainer: {
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        right: '20px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '15px',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+        zIndex: 20,
+        textAlign: 'center',
+        pointerEvents: 'none',
+    },
+    promptText: {
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        color: 'var(--color-text)',
+    },
+    hostControls: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '10px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '15px',
+        borderRadius: 'var(--radius-lg)',
+        pointerEvents: 'auto',
+    },
+    aiControls: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '5px',
+        width: '100%',
+    },
+    label: {
+        fontSize: '0.9rem',
+        fontWeight: 'bold',
+        color: 'var(--color-text)',
+    },
+    slider: {
+        width: '100%',
+        accentColor: 'var(--color-primary)',
+    },
+    aiButton: {
+        padding: '8px 16px',
+        fontSize: '0.9rem',
+        fontWeight: 'bold',
+        color: 'white',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
+        width: '100%',
     }
 };
 
