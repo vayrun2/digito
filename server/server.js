@@ -58,13 +58,48 @@ io.on('connection', (socket) => {
         let currentSessionId = sessionId || uuidv4();
         let currentRoomCode = roomCode ? roomCode.toUpperCase() : generateRoomCode();
 
-        // Reconnection Logic
+        // Reconnection & Override Logic
         if (sessions.has(currentSessionId)) {
             const session = sessions.get(currentSessionId);
-            currentRoomCode = session.roomCode;
-            // Update socket ID for the session
+
+            // 1. Name Update (Override)
+            if (name && name !== session.name) {
+                session.name = name;
+            }
+
+            // 2. Room Switch (Override)
+            if (roomCode && roomCode.toUpperCase() !== session.roomCode) {
+                // User is switching rooms. Remove from old room first.
+                const oldRoomCode = session.roomCode;
+                const oldRoom = rooms.get(oldRoomCode);
+                if (oldRoom) {
+                    oldRoom.players = oldRoom.players.filter(p => p.sessionId !== currentSessionId);
+                    // If room is empty, maybe delete it? (Optional, keeping simple for now)
+                    if (oldRoom.players.length === 0) {
+                        rooms.delete(oldRoomCode);
+                    } else {
+                        io.to(oldRoomCode).emit('room_update', {
+                            roomCode: oldRoomCode,
+                            players: oldRoom.players,
+                            state: oldRoom.state,
+                            prompt: oldRoom.prompt
+                        });
+                    }
+                    socket.leave(oldRoomCode);
+                }
+
+                // Update session to new room
+                session.roomCode = currentRoomCode;
+                // Reset color so they get a new one in the new room (optional, but good)
+                session.color = null;
+            } else {
+                // Rejoining same room or no room specified (default to old room)
+                currentRoomCode = session.roomCode;
+            }
+
+            // Update socket ID
             session.socketId = socket.id;
-            console.log(`User Reconnected: ${name} (${currentSessionId})`);
+            console.log(`User Reconnected/Updated: ${session.name} (${currentSessionId}) -> ${currentRoomCode}`);
         } else {
             // New Session
             sessions.set(currentSessionId, {
@@ -91,8 +126,12 @@ io.on('connection', (socket) => {
         const room = rooms.get(currentRoomCode);
         const session = sessions.get(currentSessionId);
 
-        // Add player to room list if not already there
-        if (!room.players.find(p => p.sessionId === currentSessionId)) {
+        // Update player info in room list (in case name changed)
+        const existingPlayerIndex = room.players.findIndex(p => p.sessionId === currentSessionId);
+        if (existingPlayerIndex !== -1) {
+            room.players[existingPlayerIndex].name = session.name;
+        } else {
+            // Add player to room list
             // Assign a color
             let color = session.color;
             if (!color) {
@@ -107,7 +146,7 @@ io.on('connection', (socket) => {
 
             room.players.push({
                 sessionId: currentSessionId,
-                name,
+                name: session.name,
                 isHost: room.hostId === currentSessionId,
                 color: color
             });
@@ -131,6 +170,41 @@ io.on('connection', (socket) => {
             state: room.state,
             prompt: room.prompt
         });
+    });
+
+    // Handle Leave Room (Back to Home)
+    socket.on('leave_room', ({ roomCode, sessionId }) => {
+        const room = rooms.get(roomCode);
+        if (room) {
+            room.players = room.players.filter(p => p.sessionId !== sessionId);
+
+            // If host leaves, assign new host? (Simple version: just remove)
+            if (room.players.length > 0 && room.hostId === sessionId) {
+                room.hostId = room.players[0].sessionId;
+                room.players[0].isHost = true;
+            }
+
+            if (room.players.length === 0) {
+                rooms.delete(roomCode);
+            } else {
+                io.to(roomCode).emit('room_update', {
+                    roomCode,
+                    players: room.players,
+                    state: room.state,
+                    prompt: room.prompt
+                });
+            }
+        }
+
+        socket.leave(roomCode);
+
+        // Optional: Clear session from server memory? 
+        // For now, let's keep it but clear the room association in it?
+        // Actually, better to just let it be. If they join again, the "Override" logic will handle it.
+        // But we should probably clear the roomCode in the session so they don't auto-rejoin if they refresh.
+        if (sessions.has(sessionId)) {
+            sessions.delete(sessionId); // Hard reset for "Back to Home"
+        }
     });
 
     // Handle Start Game
