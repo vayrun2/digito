@@ -17,8 +17,8 @@ const Game = () => {
             background: isRevealed ? 'var(--color-white)' : cardColor,
         }}>
 
-            {/* Prompt Display */}
-            {prompt && (
+            {/* Prompt Display - Only show when number is revealed */}
+            {prompt && isRevealed && (
                 <div style={styles.promptContainer}>
                     <span style={styles.promptText}>{prompt}</span>
                 </div>
@@ -131,7 +131,7 @@ const styles = {
     },
     promptContainer: {
         position: 'absolute',
-        top: '20px',
+        top: '60px', // Moved down from 20px
         left: '20px',
         right: '20px',
         background: 'rgba(255, 255, 255, 0.9)',
