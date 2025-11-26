@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Game = () => {
-    const { myNumber, playerName, getPlayerColor, isHost, resetGame, prompt, leaveRoom } = useGame();
+    const { myNumber, playerName, getPlayerColor, isHost, resetGame, prompt } = useGame();
     const [isRevealed, setIsRevealed] = useState(true); // Default to revealed (Number)
 
     const cardColor = getPlayerColor(playerName);
@@ -48,10 +48,6 @@ const Game = () => {
                         New Game
                     </button>
                 )}
-
-                <button onClick={leaveRoom} style={styles.homeButton}>
-                    🏠 Home
-                </button>
             </div>
         </div>
     );
@@ -130,15 +126,6 @@ const styles = {
         fontSize: '1rem',
         color: 'white',
         background: 'rgba(229, 62, 62, 0.8)', // Red
-        borderRadius: 'var(--radius-md)',
-        border: 'none',
-    },
-    homeButton: {
-        pointerEvents: 'auto',
-        padding: '10px 20px',
-        fontSize: '1rem',
-        color: 'white',
-        background: 'rgba(0, 0, 0, 0.5)',
         borderRadius: 'var(--radius-md)',
         border: 'none',
     },
