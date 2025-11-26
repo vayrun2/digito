@@ -94,9 +94,9 @@ export const GameProvider = ({ children }) => {
         socket.emit('reset_game', { roomCode });
     };
 
-    const generatePrompt = (spiciness) => {
+    const generatePrompt = (mode) => {
         if (!socket) return;
-        socket.emit('generate_prompt', { roomCode, spiciness });
+        socket.emit('generate_prompt', { roomCode, mode });
     };
 
     const getPlayerColor = (name) => {
