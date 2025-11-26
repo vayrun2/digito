@@ -1,0 +1,49 @@
+:root {
+  /* Playful Palette */
+  --color-bg: #F0F4F8;
+  --color-text: #2D3748;
+  --color-primary: #4299E1;
+  /* Blue */
+  --color-secondary: #ED64A6;
+  /* Pink */
+  --color-accent: #ECC94B;
+  /* Yellow */
+  --color-white: #FFFFFF;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+
+  --font-main: 'Inter', system-ui, sans-serif;
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  /* Prevent scrolling for full-screen app */
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.95);
+}
