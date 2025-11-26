@@ -195,8 +195,19 @@ io.on('connection', (socket) => {
 
     // Handle AI Prompt Generation
     socket.on('generate_prompt', async ({ roomCode, mode }) => {
+        console.log(`Received generate_prompt for room ${roomCode} with mode: ${mode}`);
+
         const room = rooms.get(roomCode);
-        if (!room || !model) return;
+        if (!room) {
+            console.error(`Room ${roomCode} not found`);
+            return;
+        }
+
+        if (!model) {
+            console.error("Gemini Model not initialized. API Key missing?");
+            socket.emit('error', 'Server missing API Key. Cannot generate prompt.');
+            return;
+        }
 
         try {
             const promptTemplate = `Role: You are a game content generator for the cooperative party game "Ito." In this game, players are given a category that involves a spectrum (e.g., "Worst to Best" or "Least to Most"), and they must place a secret number they hold onto that spectrum.
