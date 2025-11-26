@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Lobby = () => {
-    const { roomCode, players, isHost, joinRoom, startGame, error, prompt, generatePrompt, leaveRoom } = useGame();
+    const { roomCode, players, isHost, joinRoom, startGame, error, prompt, generatePrompt, leaveRoom, isGeneratingPrompt } = useGame();
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [showRules, setShowRules] = useState(false);
@@ -35,7 +35,12 @@ const Lobby = () => {
 
                     {/* AI Prompt Section */}
                     <div style={styles.aiSection}>
-                        {prompt ? (
+                        {isGeneratingPrompt ? (
+                            <div style={styles.promptBox}>
+                                <span style={styles.promptLabel}>Generating Topic...</span>
+                                <div style={styles.loadingSpinner}>🧠 Thinking...</div>
+                            </div>
+                        ) : prompt ? (
                             <div style={styles.promptBox}>
                                 <span style={styles.promptLabel}>Topic:</span>
                                 <p style={styles.promptText}>{prompt}</p>
@@ -50,21 +55,28 @@ const Lobby = () => {
                                     <button
                                         onClick={() => setAiMode('SAFE')}
                                         style={aiMode === 'SAFE' ? styles.modeBtnActive : styles.modeBtn}
+                                        disabled={isGeneratingPrompt}
                                     >
                                         😇 Safe
                                     </button>
                                     <button
                                         onClick={() => setAiMode('NSFW')}
                                         style={aiMode === 'NSFW' ? styles.modeBtnActive : styles.modeBtn}
+                                        disabled={isGeneratingPrompt}
                                     >
                                         😈 NSFW
                                     </button>
                                 </div>
                                 <button
                                     onClick={() => generatePrompt(aiMode)}
-                                    style={styles.generateButton}
+                                    style={{
+                                        ...styles.generateButton,
+                                        opacity: isGeneratingPrompt ? 0.7 : 1,
+                                        cursor: isGeneratingPrompt ? 'not-allowed' : 'pointer'
+                                    }}
+                                    disabled={isGeneratingPrompt}
                                 >
-                                    ✨ Generate Topic
+                                    {isGeneratingPrompt ? '✨ Generating...' : '✨ Generate Topic'}
                                 </button>
                             </div>
                         )}
@@ -389,6 +401,13 @@ const styles = {
         border: 'none',
         borderRadius: 'var(--radius-md)',
         cursor: 'pointer',
+    }
+    loadingSpinner: {
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        color: 'var(--color-primary)',
+        margin: '10px 0',
+        animation: 'pulse 1.5s infinite',
     }
 };
 
