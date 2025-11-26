@@ -131,7 +131,7 @@ const styles = {
     },
     promptContainer: {
         position: 'absolute',
-        top: '60px', // Moved down from 20px
+        top: '80px', // Moved down further
         left: '20px',
         right: '20px',
         background: 'rgba(255, 255, 255, 0.9)',
