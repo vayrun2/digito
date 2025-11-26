@@ -194,23 +194,30 @@ io.on('connection', (socket) => {
     });
 
     // Handle AI Prompt Generation
-    socket.on('generate_prompt', async ({ roomCode, spiciness }) => {
+    socket.on('generate_prompt', async ({ roomCode, mode }) => {
         const room = rooms.get(roomCode);
         if (!room || !model) return;
 
         try {
-            const promptText = `Generate a single, short, fun, debate-sparking topic for a group game where players have to rank items from 1-100. 
-            The topic should be suitable for a "Spiciness Level" of ${spiciness} out of 3.
-            Level 1: Wholesome, family friendly.
-            Level 2: Edgy, funny, maybe slightly controversial.
-            Level 3: Raunchy, dark humor, adult only.
-            
-            Examples:
-            "How dangerous is this animal?"
-            "How acceptable is this behavior?"
-            "How much would you pay for this?"
-            
-            Output ONLY the topic text. No quotes.`;
+            let promptText;
+            if (mode === 'NSFW') {
+                promptText = `Generate a single, short, funny, raunchy, adult-only topic for a group game where players have to rank items from 1-100.
+                Examples:
+                "How kinky is this?"
+                "How likely are you to sleep with them?"
+                "How embarrassing is this sexual encounter?"
+                
+                Output ONLY the topic text. No quotes.`;
+            } else {
+                // SAFE mode (default)
+                promptText = `Generate a single, short, fun, family-friendly debate-sparking topic for a group game where players have to rank items from 1-100.
+                Examples:
+                "How dangerous is this animal?"
+                "How useful is this superpower?"
+                "How delicious is this food?"
+                
+                Output ONLY the topic text. No quotes.`;
+            }
 
             const result = await model.generateContent(promptText);
             const response = await result.response;

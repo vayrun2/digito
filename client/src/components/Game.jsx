@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Game = () => {
-    const { myNumber, playerName, getPlayerColor, isHost, resetGame, prompt, generatePrompt } = useGame();
+    const { myNumber, playerName, getPlayerColor, isHost, resetGame, prompt } = useGame();
     const [isRevealed, setIsRevealed] = useState(true); // Default to revealed (Number)
-    const [spiciness, setSpiciness] = useState(1);
 
     const cardColor = getPlayerColor(playerName);
 
@@ -45,25 +44,9 @@ const Game = () => {
                 </button>
 
                 {isHost && (
-                    <div style={styles.hostControls}>
-                        <div style={styles.aiControls}>
-                            <label style={styles.label}>Spiciness: {spiciness} 🌶️</label>
-                            <input
-                                type="range"
-                                min="1"
-                                max="3"
-                                value={spiciness}
-                                onChange={(e) => setSpiciness(e.target.value)}
-                                style={styles.slider}
-                            />
-                            <button onClick={() => generatePrompt(spiciness)} style={styles.aiButton}>
-                                ✨ New Topic
-                            </button>
-                        </div>
-                        <button onClick={resetGame} style={styles.resetButton}>
-                            New Game
-                        </button>
-                    </div>
+                    <button onClick={resetGame} style={styles.resetButton}>
+                        New Game
+                    </button>
                 )}
             </div>
         </div>

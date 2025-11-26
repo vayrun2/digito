@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 const Lobby = () => {
-    const { roomCode, players, isHost, joinRoom, startGame, error } = useGame();
+    const { roomCode, players, isHost, joinRoom, startGame, error, prompt, generatePrompt } = useGame();
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [showRules, setShowRules] = useState(false);
+    const [aiMode, setAiMode] = useState('SAFE'); // SAFE or NSFW
 
     const handleJoin = (e) => {
         e.preventDefault();
@@ -26,6 +27,43 @@ const Lobby = () => {
                 <div style={styles.card}>
                     <h2 style={styles.title}>Room Code</h2>
                     <div style={styles.codeDisplay}>{roomCode}</div>
+
+                    {/* AI Prompt Section */}
+                    <div style={styles.aiSection}>
+                        {prompt ? (
+                            <div style={styles.promptBox}>
+                                <span style={styles.promptLabel}>Topic:</span>
+                                <p style={styles.promptText}>{prompt}</p>
+                            </div>
+                        ) : (
+                            <p style={styles.waitingText}>No topic selected yet...</p>
+                        )}
+
+                        {isHost && (
+                            <div style={styles.hostAiControls}>
+                                <div style={styles.modeToggle}>
+                                    <button
+                                        onClick={() => setAiMode('SAFE')}
+                                        style={aiMode === 'SAFE' ? styles.modeBtnActive : styles.modeBtn}
+                                    >
+                                        😇 Safe
+                                    </button>
+                                    <button
+                                        onClick={() => setAiMode('NSFW')}
+                                        style={aiMode === 'NSFW' ? styles.modeBtnActive : styles.modeBtn}
+                                    >
+                                        😈 NSFW
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={() => generatePrompt(aiMode)}
+                                    style={styles.generateButton}
+                                >
+                                    ✨ Generate Topic
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
                     <div style={styles.playerList}>
                         <h3 style={styles.subtitle}>Players</h3>
@@ -264,6 +302,72 @@ const styles = {
         borderRadius: 'var(--radius-md)',
         width: '100%',
         textAlign: 'center',
+    },
+    aiSection: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        padding: '15px',
+        background: '#F0F4F8',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid #E1E8ED',
+    },
+    promptBox: {
+        textAlign: 'center',
+    },
+    promptLabel: {
+        fontSize: '0.8rem',
+        fontWeight: 'bold',
+        color: '#718096',
+        textTransform: 'uppercase',
+    },
+    promptText: {
+        fontSize: '1.1rem',
+        fontWeight: 'bold',
+        color: 'var(--color-text)',
+        margin: '5px 0 0 0',
+    },
+    hostAiControls: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        marginTop: '10px',
+    },
+    modeToggle: {
+        display: 'flex',
+        gap: '5px',
+    },
+    modeBtn: {
+        flex: 1,
+        padding: '8px',
+        fontSize: '0.9rem',
+        border: '1px solid #CBD5E0',
+        background: 'white',
+        color: '#718096',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
+    },
+    modeBtnActive: {
+        flex: 1,
+        padding: '8px',
+        fontSize: '0.9rem',
+        fontWeight: 'bold',
+        border: '1px solid var(--color-primary)',
+        background: 'var(--color-primary)',
+        color: 'white',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
+    },
+    generateButton: {
+        padding: '10px',
+        fontSize: '1rem',
+        fontWeight: 'bold',
+        color: 'white',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
     }
 };
 
