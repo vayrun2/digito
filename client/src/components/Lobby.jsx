@@ -5,6 +5,7 @@ const Lobby = () => {
     const { roomCode, players, isHost, joinRoom, startGame, error } = useGame();
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
+    const [showRules, setShowRules] = useState(false);
 
     const handleJoin = (e) => {
         e.preventDefault();
@@ -86,7 +87,35 @@ const Lobby = () => {
                         Create
                     </button>
                 </div>
+
+                <button
+                    onClick={() => setShowRules(true)}
+                    style={styles.linkButton}
+                >
+                    How to Play ❓
+                </button>
             </div>
+
+            {showRules && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalCard}>
+                        <h2 style={styles.modalTitle}>How to Play</h2>
+                        <ol style={styles.rulesList}>
+                            <li>Join a room with friends. 📱</li>
+                            <li>Get a secret number (1-100). 🤫</li>
+                            <li>Arrange your phones in ascending order. 📈</li>
+                            <li><strong>No talking about numbers!</strong> 🤐</li>
+                            <li>Once you've locked in your order, flip cards to reveal if you were right! 🔄</li>
+                        </ol>
+                        <button
+                            onClick={() => setShowRules(false)}
+                            style={styles.primaryButton}
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -168,6 +197,48 @@ const styles = {
         color: 'var(--color-primary)',
         background: '#EBF8FF',
         borderRadius: 'var(--radius-md)',
+    },
+    linkButton: {
+        background: 'none',
+        border: 'none',
+        color: 'var(--color-primary)',
+        textDecoration: 'underline',
+        marginTop: '10px',
+        cursor: 'pointer',
+        fontSize: '0.9rem',
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 100,
+        padding: '20px',
+    },
+    modalCard: {
+        background: 'white',
+        padding: '30px',
+        borderRadius: 'var(--radius-lg)',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+    },
+    modalTitle: {
+        marginTop: 0,
+        color: 'var(--color-primary)',
+        textAlign: 'center',
+    },
+    rulesList: {
+        textAlign: 'left',
+        lineHeight: '1.6',
+        marginBottom: '20px',
+        paddingLeft: '20px',
+        color: 'var(--color-text)',
     },
     playerList: {
         width: '100%',
