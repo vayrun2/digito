@@ -401,7 +401,7 @@ const styles = {
         border: 'none',
         borderRadius: 'var(--radius-md)',
         cursor: 'pointer',
-    }
+    },
     loadingSpinner: {
         fontSize: '1.2rem',
         fontWeight: 'bold',
