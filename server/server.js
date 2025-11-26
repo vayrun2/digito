@@ -175,6 +175,10 @@ io.on('connection', (socket) => {
     // Handle Leave Room (Back to Home)
     socket.on('leave_room', ({ roomCode, sessionId }) => {
         const room = rooms.get(roomCode);
+
+        // Leave the socket room FIRST so they don't get the update
+        socket.leave(roomCode);
+
         if (room) {
             room.players = room.players.filter(p => p.sessionId !== sessionId);
 
@@ -195,8 +199,6 @@ io.on('connection', (socket) => {
                 });
             }
         }
-
-        socket.leave(roomCode);
 
         // Optional: Clear session from server memory? 
         // For now, let's keep it but clear the room association in it?
